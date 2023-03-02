@@ -20,7 +20,7 @@ int main() {
         
         if (omp_in_parallel()) //check in parallel region 
         {
-            printf("In parallel region\n");
+            printf("\nIn parallel region\n");
         } else {
             printf("Not in parallel region\n");
         }

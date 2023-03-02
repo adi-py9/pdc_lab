@@ -1,57 +1,52 @@
 #include <stdio.h>
-#include <omp.h>
 #include <stdlib.h>
+#include <omp.h>
 
-#define N 100
-#define M 100
-#define P 100
+#define N 100 // initialized the size of matrices
 
 int main() {
-    int a[N][M], b[M][N], c[N][P];
+    double *A, *B, *C;
     int i, j, k;
 
-    // initialize matrices
+    // Allocate memory for matrices A, B, and C
+    A = (double *) malloc(N * N * sizeof(double));
+    B = (double *) malloc(N * N * sizeof(double));
+    C = (double *) malloc(N * N * sizeof(double));
+
+    // Initialize matrices A and B with random values
     for (i = 0; i < N; i++) {
-        for (j = 0; j < M; j++) {
-            a[i][j] = i + j;
-            b[i][j] = i - j;
-            c[i][j] = 0;
+        for (j = 0; j < N; j++) {
+            A[i * N + j] = (double) rand() / RAND_MAX;
+            B[i * N + j] = (double) rand() / RAND_MAX;
         }
     }
-    // //test : printing a matrix
-    //  for (i = 0; i < N; i++) {
-    //     for (j = 0; j < M; j++) {
-    //         printf("%d ", a[i][j]);
-    //     }
-    //     printf("\n");
-    // }
 
-    // //test : printing b matrix
-    //  for (i = 0; i < N; i++) {
-    //     for (j = 0; j < M; j++) {
-    //         printf("%d ", b[i][j]);
-    //     }
-    //     printf("\n");
-    // }
-
-
-    // perform matrix multiplication using OpenMP parallelization
-    #pragma omp parallel for shared(a,b,c) private(i,j,k)
+    // Parallelize the matrix multiplication using OpenMP
+    #pragma omp parallel for shared(A,B,C) private(i,j,k)
     for (i = 0; i < N; i++) {
-        for (j = 0; j < M; j++) {
-            for (k = 0; k < P; k++) {
-                c[i][j] += a[i][k] * b[k][j];
+        for (j = 0; j < N; j++) {
+            C[i * N + j] = 0.0;
+            for (k = 0; k < N; k++) {
+                C[i * N + j] += A[i * N + k] * B[k * N + j];
             }
         }
     }
 
-    //print result matrix
-    for (i = 0; i < N; i++) {
-        for (j = 0; j < M; j++) {
-            printf("%d ", c[i][j]);
-        }
-        printf("\n");
-    }
+    // Print the result
+    printf("Result matrix C (row(s)):\n");
+for (j = 0; j < 10; j++) {
+    printf("%0.2f\n", C[j]);
+}
+printf("\n");
+printf("Result matrix C (columns(s)):\n");
+for (i = 0; i < 10; i++) {
+    printf("%0.2f\n", C[i * N]);
+}
+
+    // Free memory
+    free(A);
+    free(B);
+    free(C);
 
     return 0;
 }
